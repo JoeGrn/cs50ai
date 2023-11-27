@@ -30,7 +30,7 @@ def player(board):
     o = 0
 
     for row in board:
-        for cell in row: 
+        for cell in row:
             if cell == X:
                 x = x + 1
             if cell == O:
@@ -40,7 +40,6 @@ def player(board):
         return X
 
     return O
-    
 
 
 def actions(board):
@@ -49,13 +48,14 @@ def actions(board):
     """
 
     actions = set()
-    
+
     for row, i in enumerate(board):
         for cell, j in enumerate(row):
             if cell == EMPTY:
                 actions.add(i, j)
 
     return actions
+
 
 def result(board, action):
     """
@@ -97,7 +97,7 @@ def winner(board):
             return X
         if o == 3:
             return 0
-        
+
     return None
 
 
@@ -108,7 +108,7 @@ def terminal(board):
 
     if winner(board) != None or not actions(board):
         return True
-    
+
     return False
 
 
@@ -123,7 +123,7 @@ def utility(board):
         return 1
     elif player == O:
         return -1
-    
+
     return 0
 
 
@@ -152,6 +152,7 @@ def minimax(board):
             optimal_action = action
 
     return optimal_action
+
 
 def minimax_value(board, best_value):
     """
