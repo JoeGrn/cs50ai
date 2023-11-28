@@ -189,8 +189,33 @@ class MinesweeperAI():
                if they can be inferred from existing knowledge
         """
 
-        
-        raise NotImplementedError
+        self.moves_made.add(cell)
+        self.safes.add(cell)
+
+        sentence = Sentence(self.get_neighbors(cell), count)
+
+        for mine in self.mines:
+            sentence.mark_mine(mine)
+        for safe in self.safes:
+            sentence.mark_safe(safe)
+
+        self.knowledge.append(sentence)
+
+        mines = set()
+        safes = set()
+
+        for sentence in self.knowledge:
+            for cell in sentence.known_mines():
+                mines.add(cell)
+
+        for sentence in self.knowledge:      
+            for cell in sentence.known_safes():
+                safes.add(cell)
+
+        for cell in mines:
+            self.mark_mine(cell)
+        for cell in safes:
+            self.mark_safe(cell)
 
     def make_safe_move(self):
         """
@@ -229,3 +254,17 @@ class MinesweeperAI():
             return random.choice(possible_moves)
 
         return None
+    
+    def get_neighbors(self, cell):
+        neighbors = set()
+
+        for row in range(cell[0] - 1, cell[0] + 2):
+            for col in range(cell[1] - 1, cell[1] + 2):
+
+                if (row, col) == cell:
+                    continue
+
+                if 0 <= row < self.height and 0 <= col < self.width:
+                        neighbors.add((row, col))
+
+        return neighbors
