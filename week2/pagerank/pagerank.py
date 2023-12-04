@@ -57,7 +57,23 @@ def transition_model(corpus, page, damping_factor):
     linked to by `page`. With probability `1 - damping_factor`, choose
     a link at random chosen from all pages in the corpus.
     """
-    raise NotImplementedError
+
+    pages = {}
+    transition_pages = len(corpus[page])
+
+    if transition_pages:
+        # transition probablity
+        for page in corpus:
+            pages[page] = (1 - damping_factor) / len(corpus)
+        # random probability
+        for page in corpus[page]:
+            pages[page] += damping_factor / transition_pages
+    else:
+        # random transition as transitions available
+        for page in corpus:
+            pages[page] = 1 / len(corpus)
+
+    return pages
 
 
 def sample_pagerank(corpus, damping_factor, n):
@@ -69,7 +85,19 @@ def sample_pagerank(corpus, damping_factor, n):
     their estimated PageRank value (a value between 0 and 1). All
     PageRank values should sum to 1.
     """
-    raise NotImplementedError
+    pages = {}
+    for page in corpus:
+        pages[page] = 0
+        page = random.choice(list(corpus.keys()))
+
+    for i in range(1, n):
+        transition = transition_model(corpus, page, damping_factor)
+        for page in pages:
+            pages[page] = ((i-1) * pages[page] + transition[page])
+        
+        page = random.choices(list(pages.keys()), list(pages.values()), k=1)[0]
+
+    return pages
 
 
 def iterate_pagerank(corpus, damping_factor):
@@ -81,7 +109,34 @@ def iterate_pagerank(corpus, damping_factor):
     their estimated PageRank value (a value between 0 and 1). All
     PageRank values should sum to 1.
     """
-    raise NotImplementedError
+    page_rank = {}
+
+    # initialise as a random probabilities
+    for page in corpus:
+        page_rank[page] = 1 / len(corpus)
+
+    looping = True
+    while looping:
+        looping = False
+        for current_page in corpus:
+            old_page_rank = page_rank[current_page]
+            sum_links = 0
+
+            # sum of the probabilities from other page to current page
+            for other_webpage in corpus:
+                # if not the same page and other page links to current page
+                if current_page != other_webpage and current_page in corpus[other_webpage]:
+                    sum_links += page_rank[other_webpage] / len(corpus[other_webpage])
+
+            # update PR value
+            new_page_rank = (1 - damping_factor) / len(corpus) + damping_factor * sum_links
+            page_rank[current_page] = new_page_rank
+
+            # check if converged, no PR value change greater than 0.001 then exit
+            if abs(new_page_rank - old_page_rank) > 0.001:
+                looping = True
+
+    return page_rank
 
 
 if __name__ == "__main__":
